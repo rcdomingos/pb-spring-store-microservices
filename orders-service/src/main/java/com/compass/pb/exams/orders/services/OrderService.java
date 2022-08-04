@@ -27,14 +27,23 @@ public class OrderService {
 
     private final MappersUtils mappersUtils;
 
+    private final RabbitService rabbitService;
+
     public OrderDto addNewOrder(OrderRequest orderRequest) {
         log.debug("addNewOrder() - start saved ordem request:{}", orderRequest);
         OrderEntity entity = mappersUtils.orderRequestToEntity(orderRequest);
         OrderEntity saved = repository.save(entity);
-        return mapper.map(saved, OrderDto.class);
+
+        OrderDto orderDto = mapper.map(saved, OrderDto.class);
+
+        log.debug("addNewOrder() - send order to queue");
+        rabbitService.sendPaymentToQueue(orderDto);
+
+        return orderDto;
     }
 
     public List<OrderDto> getAllOrderns(String sort) {
+        log.debug("getAllOrderns() - start get all orders sort: {}", sort);
         Sort sorted = verifySortDirection(sort);
         List<OrderEntity> ordersList = repository.findAll(sorted);
 
@@ -42,18 +51,11 @@ public class OrderService {
     }
 
     public List<OrderDto> getAllOrdernsByCpf(String sort, String cpf) {
+        log.debug("getAllOrdernsByCpf() - start get all orders of cpf:{}, sort: {}", cpf, sort);
         Sort sorted = verifySortDirection(sort);
         List<OrderEntity> ordersList = repository.findAllByCpf(sorted, cpf);
 
         return ordersList.stream().map(order -> mapper.map(order, OrderDto.class)).collect(Collectors.toList());
-    }
-
-    private Sort verifySortDirection(String stringSort) {
-        if (stringSort == null) {
-            return Sort.by("id");
-        }
-        Sort.Direction direction = stringSort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return Sort.by(direction, "amount");
     }
 
     public OrderDto getOrderById(Long id) {
@@ -85,4 +87,13 @@ public class OrderService {
 
         return mapper.map(orderEntity, OrderDto.class);
     }
+
+    private Sort verifySortDirection(String stringSort) {
+        if (stringSort == null) {
+            return Sort.by("id");
+        }
+        Sort.Direction direction = stringSort.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(direction, "amount");
+    }
+
 }

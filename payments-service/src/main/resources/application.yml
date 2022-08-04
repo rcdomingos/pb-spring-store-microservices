@@ -16,6 +16,9 @@ spring:
     username: guest
     password: guest
 
+server:
+  port: 3030
+
 logging:
   level:
     com.compass.pb.exams.orders: DEBUG

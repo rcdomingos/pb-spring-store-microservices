@@ -31,10 +31,8 @@ public class ValidationExceptionHandler {
         return ResponseEntity.status(status).body(new DefaultMessageResponse(String.valueOf(status.value()), errorMessage));
     }
 
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<DefaultMessageResponse> handleValidationExceptions(HttpMessageNotReadableException e,
-                                                                             HttpServletRequest request) {
+    public ResponseEntity<DefaultMessageResponse> handleHttpValidationExceptions(HttpMessageNotReadableException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String errorMessage = "Invalid information";
 
