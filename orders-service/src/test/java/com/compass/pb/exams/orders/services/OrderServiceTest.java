@@ -32,6 +32,9 @@ class OrderServiceTest {
     @MockBean
     private OrderRepository repository;
 
+    @MockBean
+    private RabbitService rabbitService;
+
     @SpyBean
     private ModelMapper mapper;
 
@@ -50,6 +53,18 @@ class OrderServiceTest {
     }
 
     @Test
+    void shouldSendToQueue_whenAddANewOrderRequest() {
+        OrderRequest request = OrderRequestBuilder.one().now();
+        when(repository.save(any())).thenReturn(OrderEntityBuilder.one().now());
+
+        OrderDto result = service.addNewOrder(request);
+
+        verify(repository,times(1)).save(any());
+        verify(rabbitService,times(1)).sendPaymentToQueue(result);
+
+    }
+
+    @Test
     void shouldReturnAnOrder_whenSearchingById() {
         long id = 1;
         when(repository.findById(id)).thenReturn(Optional.of(OrderEntityBuilder.one().now()));
@@ -57,6 +72,18 @@ class OrderServiceTest {
         OrderDto result = service.getOrderById(id);
 
         assertNotNull(result);
+    }
+
+    @Test
+    void shouldDeleteOrder_whenDeleteOrderById() {
+        long id = 1;
+        OrderEntity entity = OrderEntityBuilder.one().now();
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+
+        service.deleteOrderById(id);
+
+       verify(repository,times(1)).findById(id);
+       verify(repository,times(1)).delete(entity);
     }
 
     @Test

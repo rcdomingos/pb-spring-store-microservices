@@ -19,6 +19,7 @@ public class RabbitService {
     private String paymentQueue;
 
     public void sendPaymentToQueue(OrderDto orderDto) {
+        log.debug("sendPaymentToQueue() - start send order id:{}, amount:{}", orderDto.getId(), orderDto.getAmount());
         RabbitPaymentRequest request = new RabbitPaymentRequest(orderDto.getId(), orderDto.getAmount());
         sendPaymenteMessage(request);
     }
