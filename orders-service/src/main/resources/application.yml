@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: "@project.name@"
+  datasource:
+    url: jdbc:mysql://localhost:3307/mercado?useTimezone=true&serverTimezone=America/Sao_Paulo
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+logging:
+  level:
+    com.compass.pb.exams.orders: DEBUG
