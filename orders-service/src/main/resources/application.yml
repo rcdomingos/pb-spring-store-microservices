@@ -5,6 +5,7 @@ spring:
     url: jdbc:mysql://localhost:3307/mercado?useTimezone=true&serverTimezone=America/Sao_Paulo
     username: root
     password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
